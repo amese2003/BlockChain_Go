@@ -7,9 +7,9 @@ import (
 )
 
 type block struct {
-	data     string
-	hash     string
-	prevHash string
+	Data     string
+	Hash     string
+	PrevHash string
 }
 
 type BlockChain struct {
@@ -26,8 +26,8 @@ func createBlock(data string) *block {
 }
 
 func (b *block) calculateHash() {
-	hash := sha256.Sum256([]byte(b.data + b.prevHash))
-	b.hash = fmt.Sprintf("%x", hash)
+	hash := sha256.Sum256([]byte(b.Data + b.PrevHash))
+	b.Hash = fmt.Sprintf("%x", hash)
 }
 
 func getLastHash() string {
@@ -37,16 +37,24 @@ func getLastHash() string {
 		return ""
 	}
 
-	return GetBlockChain().blocks[total-1].hash
+	return GetBlockChain().blocks[total-1].Hash
+}
+
+func (c *BlockChain) AddBlock(data string) {
+	b.blocks = append(b.blocks, createBlock(data))
 }
 
 func GetBlockChain() *BlockChain {
 	if b == nil {
 		once.Do(func() {
 			b = &BlockChain{}
-			b.blocks = append(b.blocks, createBlock("test block"))
+			b.AddBlock("test block")
 		})
 	}
 
 	return b
+}
+
+func (b *BlockChain) AllBlock() []*block {
+	return GetBlockChain().blocks
 }
