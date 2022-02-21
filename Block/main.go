@@ -1,15 +1,24 @@
 package main
 
 import (
+	blockchain "blockchain/Blockchain"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 )
 
 const port string = ":4000"
 
+type homeData struct {
+	PageTitle string
+	Blocks    []*blockchain.Block
+}
+
 func Home(rw http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(rw, "안녕 안녕")
+	tmpl := template.Must(template.ParseFiles("Templates/home.html"))
+	data := homeData{"Home", blockchain.GetBlockChain().AllBlock()}
+	tmpl.Execute(rw, data)
 }
 
 func main() {
