@@ -1,12 +1,13 @@
 {{define "add"}}
 <!DOCTYPE html>
 <html lang="en">
-    {{template "head"}}
+    {{template "head" "추가"}}
 <body>
-    {{template "header"}}
+    {{template "header" "추가"}}
     <main>
-        <form>
-            <input type="text" placeholder="블록에 뭐 집어 넣을까?" required />
+        <form method="POST">
+            <input type="text" placeholder="블록에 뭐 집어 넣을까?" required name = "blockData"/>
+            <button>블록 추가</button>
         </form>
     </main>
     {{template "footer"}}
