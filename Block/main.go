@@ -1,7 +1,6 @@
 package main
 
 import (
-	utils "blockchain/Utils"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,9 +10,10 @@ import (
 const port string = ":4000"
 
 type URLDescription struct {
-	URL         string
-	Method      string
-	Description string
+	URL         string `json:"url"`
+	Method      string `json:"method"`
+	Description string `json:"description"`
+	Payload     string `json:"payload,omitempty"`
 }
 
 func documentation(rw http.ResponseWriter, r *http.Request) {
@@ -23,12 +23,21 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			Method:      "GET",
 			Description: "테스트 JSON",
 		},
+		{
+			URL:         "/home",
+			Method:      "GET",
+			Description: "테스트 JSON22",
+			Payload:     "지긋지긋한 payload",
+		},
 	}
 
-	b, err := json.Marshal(data)
-	utils.HandleError(err)
+	rw.Header().Add("Content-Type", "application/json")
+	json.NewEncoder(rw).Encode(data)
 
-	fmt.Printf("%s\n", b)
+	// b, err := json.Marshal(data)
+	// utils.HandleError(err)
+
+	// fmt.Printf("%s\n", b)
 }
 
 func main() {
