@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 var port string
@@ -75,11 +77,18 @@ func BlockPage(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func Block(rw http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	fmt.Println(id)
+}
+
 func Start(aPort int) {
-	handler := http.NewServeMux()
+	handler := mux.NewRouter()
 	port = fmt.Sprintf(":%d", aPort)
-	handler.HandleFunc("/", documentation)
-	handler.HandleFunc("/blocks", BlockPage)
+	handler.HandleFunc("/", documentation).Methods("GET")
+	handler.HandleFunc("/blocks", BlockPage).Methods("GET", "POST")
+	handler.HandleFunc("/blocks/{id:[0-9]+}", Block).Methods("GET")
 	fmt.Printf("Listening on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, handler))
 }

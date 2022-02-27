@@ -9,3 +9,6 @@ POST http://localhost:4000/blocks
 {
     "message": "무엇일까"
 }
+
+###
+http://localhost:4000/blocks/1
