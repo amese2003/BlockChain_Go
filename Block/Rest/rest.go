@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -79,8 +80,10 @@ func BlockPage(rw http.ResponseWriter, r *http.Request) {
 
 func Block(rw http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	id := vars["id"]
-	fmt.Println(id)
+	id, err := strconv.Atoi(vars["height"])
+	utils.HandleError(err)
+	block := blockchain.GetBlockChain().GetBlock(id)
+	json.NewEncoder(rw).Encode(block)
 }
 
 func Start(aPort int) {
@@ -88,7 +91,7 @@ func Start(aPort int) {
 	port = fmt.Sprintf(":%d", aPort)
 	handler.HandleFunc("/", documentation).Methods("GET")
 	handler.HandleFunc("/blocks", BlockPage).Methods("GET", "POST")
-	handler.HandleFunc("/blocks/{id:[0-9]+}", Block).Methods("GET")
+	handler.HandleFunc("/blocks/{height:[0-9]+}", Block).Methods("GET")
 	fmt.Printf("Listening on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, handler))
 }
