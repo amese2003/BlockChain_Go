@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 )
@@ -19,13 +20,21 @@ func main() {
 		usage()
 	}
 
+	rest := flag.NewFlagSet("rest", flag.ExitOnError)
+	portflag := rest.Int("port", 4000, "포트번호를 정합니다.")
+
 	switch os.Args[1] {
 	case "explorer":
 		fmt.Println("Start Explorer")
 	case "rest":
-		fmt.Println("Start REST API")
+		rest.Parse(os.Args[2:])
 	default:
 		usage()
+	}
+
+	if rest.Parsed() {
+		fmt.Println(portflag)
+		fmt.Println("서버 스타트")
 	}
 
 }
