@@ -1,9 +1,9 @@
 package main
 
 import (
-	"blockchain/cli"
+	blockchain "blockchain/Blockchain"
 )
 
 func main() {
-	cli.Start()
+	blockchain.BlockChain()
 }
