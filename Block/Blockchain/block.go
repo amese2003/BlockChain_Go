@@ -3,9 +3,7 @@ package blockchain
 import (
 	utils "blockchain/Utils"
 	"blockchain/db"
-	"bytes"
 	"crypto/sha256"
-	"encoding/gob"
 	"fmt"
 )
 
@@ -16,15 +14,8 @@ type Block struct {
 	Height   int    `json:"height"`
 }
 
-func (b *Block) toBytes() []byte {
-	var blockbuffer bytes.Buffer
-	encoder := gob.NewEncoder(&blockbuffer)
-	utils.HandleError(encoder.Encode(b))
-	return blockbuffer.Bytes()
-}
-
 func (b *Block) persist() {
-	db.SaveBlock(b.Hash, b.toBytes())
+	db.SaveBlock(b.Hash, utils.ToBytes(b))
 }
 
 func createBlock(data string, prevHash string, height int) *Block {
