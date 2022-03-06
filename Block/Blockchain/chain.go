@@ -38,7 +38,7 @@ func BlockChain() *blockchain {
 		once.Do(func() {
 			b = &blockchain{"", 0}
 			fmt.Printf("NewestHash: %s\nHeight:%d\n", b.NewestHash, b.Height)
-			checkpoint := db.CheckPoint()
+			checkpoint := db.SaveCheckPoint()
 			if checkpoint == nil {
 				b.AddBlock("test block")
 				b.AddBlock("second block")
