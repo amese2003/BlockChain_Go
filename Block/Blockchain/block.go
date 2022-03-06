@@ -50,3 +50,20 @@ func createBlock(data string, prevHash string, height int) *Block {
 	newBlock.persist()
 	return newBlock
 }
+
+func (b *blockchain) Blocks() []*Block {
+	var blocks []*Block
+	currentHash := b.NewestHash
+
+	for {
+		block, _ := FindBlock(currentHash)
+		blocks = append(blocks, block)
+		if block.PrevHash == "" {
+			break
+		} else {
+			currentHash = block.PrevHash
+		}
+	}
+
+	return blocks
+}

@@ -2,6 +2,7 @@ package rest
 
 import (
 	blockchain "blockchain/Blockchain"
+	utils "blockchain/Utils"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -26,7 +27,7 @@ type urlDescription struct {
 	Payload     string `json:"payload,omitempty"`
 }
 
-type AddBlockBody struct {
+type addBlockBody struct {
 	Message string
 }
 
@@ -67,14 +68,12 @@ func BlockPage(rw http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		return
-		// json.NewEncoder(rw).Encode(blockchain.GetBlockchain().AllBlocks())
+		json.NewEncoder(rw).Encode(blockchain.BlockChain().Blocks())
 	case "POST":
-		return
-		/* var addBlockBody addBlockBody
-		utils.HandleErr(json.NewDecoder(r.Body).Decode(&addBlockBody))
-		blockchain.GetBlockchain().AddBlock(addBlockBody.Message)
-		rw.WriteHeader(http.StatusCreated) */
+		var addBlockBody addBlockBody
+		utils.HandleError(json.NewDecoder(r.Body).Decode(&addBlockBody))
+		blockchain.BlockChain().AddBlock(addBlockBody.Message)
+		rw.WriteHeader(http.StatusCreated)
 	}
 }
 
