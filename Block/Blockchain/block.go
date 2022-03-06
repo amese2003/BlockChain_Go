@@ -64,7 +64,7 @@ func createBlock(data string, prevHash string, height int) *Block {
 		Hash:       "",
 		PrevHash:   prevHash,
 		Height:     height,
-		Difficulty: BlockChain().Height,
+		Difficulty: BlockChain().difficulty(),
 		Nonce:      0,
 	}
 
