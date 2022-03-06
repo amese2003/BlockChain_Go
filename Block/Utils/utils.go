@@ -13,6 +13,11 @@ func ToBytes(data interface{}) []byte {
 	return blockbuffer.Bytes()
 }
 
+func FromBytes(out interface{}, data []byte) {
+	encoder := gob.NewDecoder(bytes.NewReader(data))
+	HandleError(encoder.Decode(out))
+}
+
 func HandleError(err error) {
 	if err != nil {
 		log.Panic(err)

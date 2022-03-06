@@ -4,6 +4,7 @@ import (
 	utils "blockchain/Utils"
 	"blockchain/db"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 )
 
@@ -16,6 +17,24 @@ type Block struct {
 
 func (b *Block) persist() {
 	db.SaveBlock(b.Hash, utils.ToBytes(b))
+}
+
+var ErrNotFound = errors.New("블록이.. 없어요!")
+
+func (b *Block) restore(data []byte) {
+	utils.FromBytes(b, data)
+}
+
+func FindBlock(hash string) (*Block, error) {
+	blockbyte := db.Block(hash)
+
+	if blockbyte == nil {
+		return nil, ErrNotFound
+	}
+
+	block := &Block{}
+	block.restore(blockbyte)
+	return block, nil
 }
 
 func createBlock(data string, prevHash string, height int) *Block {

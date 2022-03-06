@@ -44,7 +44,6 @@ func BlockChain() *blockchain {
 				b.AddBlock("second block")
 				b.AddBlock("third block")
 			} else {
-				fmt.Println("복원중...")
 				b.restore(checkpoint)
 			}
 
@@ -52,5 +51,6 @@ func BlockChain() *blockchain {
 		})
 	}
 
+	fmt.Println(b.NewestHash)
 	return b
 }
