@@ -12,13 +12,13 @@ import (
 const difficulty int = 2
 
 type Block struct {
-	Data       string `json:"data"`
-	Hash       string `json:"hash"`
-	PrevHash   string `json:"prevHash,omitempty"`
-	Height     int    `json:"height"`
-	Difficulty int    `json:"difficulty"`
-	Nonce      int    `json:"nonce"`
-	Timestamp  int    `json:"timestamp"`
+	Hash         string `json:"hash"`
+	PrevHash     string `json:"prevHash,omitempty"`
+	Height       int    `json:"height"`
+	Difficulty   int    `json:"difficulty"`
+	Nonce        int    `json:"nonce"`
+	Timestamp    int    `json:"timestamp"`
+	Transactions []*Tx  `json:"transactions"`
 }
 
 func (b *Block) persist() {
@@ -60,14 +60,14 @@ func FindBlock(hash string) (*Block, error) {
 	return block, nil
 }
 
-func createBlock(data string, prevHash string, height int) *Block {
+func createBlock(prevHash string, height int) *Block {
 	newBlock := &Block{
-		Data:       data,
-		Hash:       "",
-		PrevHash:   prevHash,
-		Height:     height,
-		Difficulty: BlockChain().difficulty(),
-		Nonce:      0,
+		Hash:         "",
+		PrevHash:     prevHash,
+		Height:       height,
+		Difficulty:   BlockChain().difficulty(),
+		Nonce:        0,
+		Transactions: []*Tx{makeCoinbaseTx("nero")},
 	}
 
 	newBlock.Mine()

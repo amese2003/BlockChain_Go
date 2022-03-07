@@ -33,9 +33,9 @@ func (b *blockchain) persist() {
 	db.SaveBlockchain(utils.ToBytes(b))
 }
 
-func (b *blockchain) AddBlock(data string) {
+func (b *blockchain) AddBlock() {
 
-	block := createBlock(data, b.NewestHash, b.Height+1)
+	block := createBlock(b.NewestHash, b.Height+1)
 	b.NewestHash = block.Hash
 	b.Height = block.Height
 	b.CurrentDifficulty = block.Difficulty
@@ -78,9 +78,7 @@ func BlockChain() *blockchain {
 			fmt.Printf("NewestHash: %s\nHeight:%d\n", b.NewestHash, b.Height)
 			checkpoint := db.Checkpoint()
 			if checkpoint == nil {
-				b.AddBlock("test block")
-				b.AddBlock("second block")
-				b.AddBlock("third block")
+				b.AddBlock()
 			} else {
 				b.restore(checkpoint)
 			}

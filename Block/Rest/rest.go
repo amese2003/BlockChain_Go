@@ -27,10 +27,6 @@ type urlDescription struct {
 	Payload     string `json:"payload,omitempty"`
 }
 
-type addBlockBody struct {
-	Message string
-}
-
 type errorResponse struct {
 	ErrorMessage string `json:"errorMessage"`
 }
@@ -75,9 +71,7 @@ func BlockPage(rw http.ResponseWriter, r *http.Request) {
 		utils.HandleError(json.NewEncoder(rw).Encode(blockchain.BlockChain().Blocks()))
 
 	case "POST":
-		var addBlockBody addBlockBody
-		utils.HandleError(json.NewDecoder(r.Body).Decode(&addBlockBody))
-		blockchain.BlockChain().AddBlock(addBlockBody.Message)
+		blockchain.BlockChain().AddBlock()
 		rw.WriteHeader(http.StatusCreated)
 	}
 }
