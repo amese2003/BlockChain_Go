@@ -2,12 +2,15 @@ package blockchain
 
 import (
 	utils "blockchain/Utils"
+	"errors"
 	"time"
 )
 
 const (
 	minerReward int = 50
 )
+
+var ErrNotEnough = errors.New("Not enough Coin")
 
 type Tx struct {
 	Id        string   `json:"id"`
@@ -25,6 +28,12 @@ type TxOut struct {
 	Owner  string `json:"owner"`
 	Amount int    `json:"amount"`
 }
+
+type mempool struct {
+	Txs []*Tx
+}
+
+var Mempool *mempool = &mempool{}
 
 func (t *Tx) getId() {
 	t.Id = utils.Hash(t)
@@ -48,4 +57,23 @@ func makeCoinbaseTx(address string) *Tx {
 
 	tx.getId()
 	return &tx
+}
+
+func makeTx(from, to string, amount int) (*Tx, error) {
+	if BlockChain().BalanceByAddress(from) < amount {
+		return nil, ErrNotEnough
+	}
+
+	return nil, nil
+}
+
+func (m *mempool) AddTx(to string, amount int) error {
+	tx, err := makeTx("nero", to, amount)
+
+	if err != nil {
+		return err
+	}
+
+	m.Txs = append(m.Txs, tx)
+	return nil
 }
