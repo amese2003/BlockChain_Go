@@ -62,15 +62,15 @@ func FindBlock(hash string) (*Block, error) {
 
 func createBlock(prevHash string, height int) *Block {
 	newBlock := &Block{
-		Hash:         "",
-		PrevHash:     prevHash,
-		Height:       height,
-		Difficulty:   BlockChain().difficulty(),
-		Nonce:        0,
-		Transactions: []*Tx{makeCoinbaseTx("nero")},
+		Hash:       "",
+		PrevHash:   prevHash,
+		Height:     height,
+		Difficulty: BlockChain().difficulty(),
+		Nonce:      0,
 	}
 
 	newBlock.Mine()
+	newBlock.Transactions = Mempool.TxToConfirm()
 	newBlock.persist()
 	return newBlock
 }
