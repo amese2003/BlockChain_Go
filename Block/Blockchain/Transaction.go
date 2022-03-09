@@ -20,13 +20,20 @@ type Tx struct {
 }
 
 type TxIn struct {
-	Owner  string `json:"owner"`
-	Amount int    `json:"amount"`
+	TxID  string `json:"txId"`
+	Index int    `json:"index"`
+	Owner string `json:"owner"`
 }
 
 type TxOut struct {
 	Owner  string `json:"owner"`
 	Amount int    `json:"amount"`
+}
+
+type UTxOut struct {
+	TxID   string
+	Index  int
+	Amount int
 }
 
 type mempool struct {
@@ -41,7 +48,7 @@ func (t *Tx) getId() {
 
 func makeCoinbaseTx(address string) *Tx {
 	txIns := []*TxIn{
-		{"COINBASE", minerReward},
+		{"", -1, "COINBASE"},
 	}
 
 	txOuts := []*TxOut{
@@ -60,45 +67,7 @@ func makeCoinbaseTx(address string) *Tx {
 }
 
 func makeTx(from, to string, amount int) (*Tx, error) {
-	if BlockChain().BalanceByAddress(from) < amount {
-		return nil, ErrNotEnough
-	}
 
-	var txIns []*TxIn
-	var txOuts []*TxOut
-
-	total := 0
-	oldTxOuts := BlockChain().TxOutsByAddress(from)
-
-	for _, txOut := range oldTxOuts {
-		if total > amount {
-			break
-		}
-
-		txIn := &TxIn{txOut.Owner, txOut.Amount}
-		txIns = append(txIns, txIn)
-		total += txOut.Amount
-	}
-
-	change := total - amount
-
-	if change != 0 {
-		changeTxOut := &TxOut{from, change}
-		txOuts = append(txOuts, changeTxOut)
-	}
-
-	txOut := &TxOut{to, amount}
-	txOuts = append(txOuts, txOut)
-	tx := &Tx{
-		Id:        "",
-		Timestamp: int(time.Now().Unix()),
-		TxIns:     txIns,
-		TxOuts:    txOuts,
-	}
-
-	tx.getId()
-
-	return tx, nil
 }
 
 func (m *mempool) AddTx(to string, amount int) error {
