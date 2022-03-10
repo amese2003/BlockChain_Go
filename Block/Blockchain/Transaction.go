@@ -31,9 +31,21 @@ type TxOut struct {
 }
 
 type UTxOut struct {
-	TxID   string
-	Index  int
-	Amount int
+	TxID   string `json:"txId"`
+	Index  int    `json:"index"`
+	Amount int    `json:"amount"`
+}
+
+func isOnMempool(UTxOut *UTxOut) bool {
+	exists := false
+
+	for _, tx := range Mempool.Txs {
+		for _, input := range tx.TxIns {
+			exists = input.TxID == UTxOut.TxID && input.Index == UTxOut.Index
+		}
+	}
+
+	return exists
 }
 
 type mempool struct {
