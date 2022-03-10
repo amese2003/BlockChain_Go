@@ -67,7 +67,7 @@ func makeCoinbaseTx(address string) *Tx {
 }
 
 func makeTx(from, to string, amount int) (*Tx, error) {
-
+	return nil, nil
 }
 
 func (m *mempool) AddTx(to string, amount int) error {

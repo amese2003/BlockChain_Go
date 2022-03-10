@@ -127,7 +127,7 @@ func balance(rw http.ResponseWriter, r *http.Request) {
 		break
 
 	default:
-		utils.HandleError(json.NewEncoder(rw).Encode(blockchain.BlockChain().TxOutsByAddress(address)))
+		utils.HandleError(json.NewEncoder(rw).Encode(blockchain.BlockChain().UTxOutsByAddress(address)))
 		break
 	}
 
