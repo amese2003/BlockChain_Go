@@ -75,7 +75,7 @@ func createBlock(prevHash string, height int) *Block {
 	return newBlock
 }
 
-func (b *blockchain) Blocks() []*Block {
+func Blocks(b *blockchain) []*Block {
 	var blocks []*Block
 	currentHash := b.NewestHash
 

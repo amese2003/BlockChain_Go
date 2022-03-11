@@ -39,9 +39,13 @@ type UTxOut struct {
 func isOnMempool(UTxOut *UTxOut) bool {
 	exists := false
 
+Outloop:
 	for _, tx := range Mempool.Txs {
 		for _, input := range tx.TxIns {
-			exists = input.TxID == UTxOut.TxID && input.Index == UTxOut.Index
+			if input.TxID == UTxOut.TxID && input.Index == UTxOut.Index {
+				exists = true
+				break Outloop
+			}
 		}
 	}
 
@@ -80,17 +84,17 @@ func makeCoinbaseTx(address string) *Tx {
 
 func makeTx(from, to string, amount int) (*Tx, error) {
 
-	if BlockChain().BalanceByAddress(from) < amount {
+	if BalanceByAddress(from, BlockChain()) < amount {
 		return nil, ErrNotEnough
 	}
 
 	var txOuts []*TxOut
 	var txIns []*TxIn
 	total := 0
-	UTxOuts := BlockChain().UTxOutsByAddress(from)
+	UTxOuts := UTxOutsByAddress(from, BlockChain())
 
 	for _, uTxOut := range UTxOuts {
-		if total > amount {
+		if total >= amount {
 			break
 		}
 

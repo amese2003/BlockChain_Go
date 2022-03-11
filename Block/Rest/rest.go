@@ -83,7 +83,7 @@ func BlockPage(rw http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		utils.HandleError(json.NewEncoder(rw).Encode(blockchain.BlockChain().Blocks()))
+		utils.HandleError(json.NewEncoder(rw).Encode(blockchain.Blocks(blockchain.BlockChain())))
 
 	case "POST":
 		blockchain.BlockChain().AddBlock()
@@ -122,12 +122,12 @@ func balance(rw http.ResponseWriter, r *http.Request) {
 
 	switch total {
 	case "true":
-		amount := blockchain.BlockChain().BalanceByAddress(address)
+		amount := blockchain.BalanceByAddress(address, blockchain.BlockChain())
 		json.NewEncoder(rw).Encode(balanceResponse{address, amount})
 		break
 
 	default:
-		utils.HandleError(json.NewEncoder(rw).Encode(blockchain.BlockChain().UTxOutsByAddress(address)))
+		utils.HandleError(json.NewEncoder(rw).Encode(blockchain.UTxOutsByAddress(address, blockchain.BlockChain())))
 		break
 	}
 
