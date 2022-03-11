@@ -60,12 +60,12 @@ func FindBlock(hash string) (*Block, error) {
 	return block, nil
 }
 
-func createBlock(prevHash string, height int) *Block {
+func createBlock(prevHash string, height int, difficulty int) *Block {
 	newBlock := &Block{
 		Hash:       "",
 		PrevHash:   prevHash,
 		Height:     height,
-		Difficulty: BlockChain().difficulty(),
+		Difficulty: difficulty,
 		Nonce:      0,
 	}
 
