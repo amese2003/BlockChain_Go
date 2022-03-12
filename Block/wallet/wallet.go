@@ -11,6 +11,7 @@ import (
 
 type wallet struct {
 	privateKey *ecdsa.PrivateKey
+	address    string
 }
 
 var w *wallet
@@ -30,6 +31,23 @@ func createPrivateKey() *ecdsa.PrivateKey {
 	return privKey
 }
 
+func restoreKey() *ecdsa.PrivateKey {
+	keyAsBytes, err := os.ReadFile(fileName)
+	utils.HandleError(err)
+	key, err := x509.ParseECPrivateKey(keyAsBytes)
+	utils.HandleError(err)
+	return key
+}
+
+// go에선 이렇게도 return이 가능하다더라...
+// func restoreKey2() (key *ecdsa.PrivateKey) {
+// 	keyAsBytes, err := os.ReadFile(fileName)
+// 	utils.HandleError(err)
+// 	key, err = x509.ParseECPrivateKey(keyAsBytes)
+// 	utils.HandleError(err)
+// 	return
+// }
+
 func saveKey(key *ecdsa.PrivateKey) {
 	bytes, err := x509.MarshalECPrivateKey(key)
 	utils.HandleError(err)
@@ -37,16 +55,23 @@ func saveKey(key *ecdsa.PrivateKey) {
 	utils.HandleError(err)
 }
 
+func aFromK(key *ecdsa.PrivateKey) string {
+
+	return ""
+}
+
 func Wallet() *wallet {
 	if w == nil {
 		w = &wallet{}
 		if hasWalletFile() {
-
+			w.privateKey = restoreKey()
 		} else {
 			key := createPrivateKey()
 			saveKey(key)
 			w.privateKey = key
 		}
+
+		w.address = aFromK(w.privateKey)
 	}
 
 	return w
