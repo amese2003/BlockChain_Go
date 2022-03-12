@@ -21,20 +21,31 @@ type Tx struct {
 }
 
 type TxIn struct {
-	TxID  string `json:"txId"`
-	Index int    `json:"index"`
-	Owner string `json:"owner"`
+	TxID      string `json:"txId"`
+	Index     int    `json:"index"`
+	Signature string `json:"signature"`
 }
 
 type TxOut struct {
-	Owner  string `json:"owner"`
-	Amount int    `json:"amount"`
+	Address string `json:"address"`
+	Amount  int    `json:"amount"`
 }
 
 type UTxOut struct {
 	TxID   string `json:"txId"`
 	Index  int    `json:"index"`
 	Amount int    `json:"amount"`
+}
+
+func (t *Tx) sign() {
+	for _, txIn := range t.TxIns {
+		txIn.Signature = wallet.Sign(t.Id, wallet.Wallet())
+	}
+}
+
+func validate(tx *Tx) bool {
+	valid := true
+	return valid
 }
 
 func isOnMempool(UTxOut *UTxOut) bool {
@@ -80,6 +91,7 @@ func makeCoinbaseTx(address string) *Tx {
 	}
 
 	tx.getId()
+	tx.sign()
 	return &tx
 }
 
