@@ -2,6 +2,7 @@ package blockchain
 
 import (
 	utils "blockchain/Utils"
+	"blockchain/wallet"
 	"errors"
 	"time"
 )
@@ -123,7 +124,7 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 }
 
 func (m *mempool) AddTx(to string, amount int) error {
-	tx, err := makeTx("nero", to, amount)
+	tx, err := makeTx(wallet.Wallet().Address, to, amount)
 	if err != nil {
 		return err
 	}
@@ -132,7 +133,7 @@ func (m *mempool) AddTx(to string, amount int) error {
 }
 
 func (m *mempool) TxToConfirm() []*Tx {
-	coinbase := makeCoinbaseTx("nero")
+	coinbase := makeCoinbaseTx(wallet.Wallet().Address)
 	txs := m.Txs
 	txs = append(txs, coinbase)
 	m.Txs = nil

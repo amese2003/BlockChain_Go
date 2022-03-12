@@ -6,12 +6,13 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/x509"
+	"fmt"
 	"os"
 )
 
 type wallet struct {
 	privateKey *ecdsa.PrivateKey
-	address    string
+	Address    string
 }
 
 var w *wallet
@@ -56,8 +57,11 @@ func saveKey(key *ecdsa.PrivateKey) {
 }
 
 func aFromK(key *ecdsa.PrivateKey) string {
+	x := key.X.Bytes()
+	y := key.Y.Bytes()
 
-	return ""
+	result := append(x, y...)
+	return fmt.Sprintf("%x", result)
 }
 
 func Wallet() *wallet {
@@ -71,7 +75,7 @@ func Wallet() *wallet {
 			w.privateKey = key
 		}
 
-		w.address = aFromK(w.privateKey)
+		w.Address = aFromK(w.privateKey)
 	}
 
 	return w
