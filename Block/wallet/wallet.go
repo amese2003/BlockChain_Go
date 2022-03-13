@@ -97,7 +97,7 @@ func Verify(signature, payload, address string) bool {
 	r, s, err := restoreBigInts(signature)
 	utils.HandleError(err)
 
-	x, y, err := restoreBigInts(payload)
+	x, y, err := restoreBigInts(address)
 	utils.HandleError(err)
 
 	publicKey := ecdsa.PublicKey{

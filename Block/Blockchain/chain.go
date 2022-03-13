@@ -3,8 +3,6 @@ package blockchain
 import (
 	utils "blockchain/Utils"
 	"blockchain/db"
-	"bytes"
-	"encoding/gob"
 	"fmt"
 	"sync"
 )
@@ -26,7 +24,7 @@ var b *blockchain
 var once sync.Once
 
 func (b *blockchain) restore(data []byte) {
-	utils.HandleError(gob.NewDecoder(bytes.NewReader(data)).Decode(b))
+	utils.FromBytes(b, data)
 }
 
 func persistBlockchain(b *blockchain) {
@@ -56,7 +54,6 @@ func FindTx(b *blockchain, targetID string) *Tx {
 			return tx
 		}
 	}
-
 	return nil
 }
 
@@ -120,19 +117,19 @@ func UTxOutsByAddress(address string, b *blockchain) []*UTxOut {
 					break
 				}
 
-				if FindTxs(b, input.TxID) == "address" {
+				if FindTx(b, input.TxID).TxOuts[input.Index].Address == address {
 					createTxs[input.TxID] = true
 				}
 			}
 
 			for idx, output := range tx.TxOuts {
-				if output.Owner == address {
+				if output.Address == address {
 					if _, ok := createTxs[tx.Id]; !ok {
 						uTxOut := &UTxOut{tx.Id, idx, output.Amount}
 
-						if !isOnMempool(uTxOut) {
+						if isOnMempool(uTxOut) == false {
 
-							uTxOuts = append(uTxOuts)
+							uTxOuts = append(uTxOuts, uTxOut)
 						}
 
 					}

@@ -3,6 +3,7 @@ package rest
 import (
 	blockchain "blockchain/Blockchain"
 	utils "blockchain/Utils"
+	"blockchain/wallet"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -34,6 +35,10 @@ type errorResponse struct {
 type addTxPayload struct {
 	To     string
 	Amount int
+}
+
+type myWalletResponse struct {
+	Address string `json:"address"`
 }
 
 type balanceResponse struct {
@@ -148,6 +153,11 @@ func mempool(rw http.ResponseWriter, r *http.Request) {
 	utils.HandleError(json.NewEncoder(rw).Encode(blockchain.Mempool.Txs))
 }
 
+func myWallet(rw http.ResponseWriter, r *http.Request) {
+	address := wallet.Wallet().Address
+	json.NewEncoder(rw).Encode(myWalletResponse{Address: address})
+}
+
 func Start(aPort int) {
 	router := mux.NewRouter()
 	port = fmt.Sprintf(":%d", aPort)
@@ -156,7 +166,9 @@ func Start(aPort int) {
 	router.HandleFunc("/status", status)
 	router.HandleFunc("/blocks", BlockPage).Methods("GET", "POST")
 	router.HandleFunc("/blocks/{hash:[a-f0-9]+}", Block).Methods("GET")
-	router.HandleFunc("/balance/{address}", balance)
+	router.HandleFunc("/balance/{address}", balance).Methods("GET")
+	router.HandleFunc("/mempool", mempool).Methods("GET")
+	router.HandleFunc("/wallet", myWallet).Methods("GET")
 	router.HandleFunc("/mempool", mempool)
 	router.HandleFunc("/transactions", transactions).Methods("POST")
 	fmt.Printf("Listening on http://localhost%s\n", port)
