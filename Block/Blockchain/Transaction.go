@@ -12,6 +12,7 @@ const (
 )
 
 var ErrNotEnough = errors.New("Not enough Coin")
+var ErrNotValid = errors.New("Tx Invalid")
 
 type Tx struct {
 	Id        string   `json:"id"`
@@ -45,6 +46,22 @@ func (t *Tx) sign() {
 
 func validate(tx *Tx) bool {
 	valid := true
+
+	for _, txIn := range tx.TxIns {
+		prevTx := FindTx(BlockChain(), txIn.TxID)
+		if prevTx == nil {
+			valid = false
+			break
+		}
+
+		address := prevTx.TxOuts[txIn.Index].Address
+		valid = wallet.Verify(txIn.Signature, tx.Id, address)
+
+		if valid == false {
+			break
+		}
+	}
+
 	return valid
 }
 
@@ -132,6 +149,13 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 	}
 
 	tx.getId()
+	tx.sign()
+	valid := validate(tx)
+
+	if valid == false {
+		return nil, ErrNotValid
+	}
+
 	return tx, nil
 }
 

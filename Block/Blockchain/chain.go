@@ -50,7 +50,7 @@ func Txs(b *blockchain) []*Tx {
 	return txs
 }
 
-func FindTxs(b *blockchain, targetID string) *Tx {
+func FindTx(b *blockchain, targetID string) *Tx {
 	for _, tx := range Txs(b) {
 		if tx.Id == targetID {
 			return tx
@@ -115,7 +115,12 @@ func UTxOutsByAddress(address string, b *blockchain) []*UTxOut {
 	for _, block := range Blocks(b) {
 		for _, tx := range block.Transactions {
 			for _, input := range tx.TxIns {
-				if input.Owner == address {
+
+				if input.Signature == "COINBASE" {
+					break
+				}
+
+				if FindTxs(b, input.TxID) == "address" {
 					createTxs[input.TxID] = true
 				}
 			}
