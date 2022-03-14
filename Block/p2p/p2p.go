@@ -4,6 +4,7 @@ import (
 	utils "blockchain/Utils"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -20,7 +21,12 @@ func Upgrade(rw http.ResponseWriter, r *http.Request) {
 
 	for {
 		_, p, err := conn.ReadMessage()
-		utils.HandleError(err)
-		fmt.Printf("%s\n\n", p)
+		if err != nil {
+			break
+		}
+		fmt.Printf("Just got:%s\n\n", p)
+		time.Sleep(5 * time.Second)
+		message := fmt.Sprintf("New message: %s", p)
+		utils.HandleError(conn.WriteMessage(websocket.TextMessage, []byte(message)))
 	}
 }
