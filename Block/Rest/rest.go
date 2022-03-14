@@ -129,6 +129,7 @@ func status(rw http.ResponseWriter, r *http.Request) {
 func loggerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		fmt.Println(r.URL)
+		fmt.Println(r.RequestURI)
 		next.ServeHTTP(rw, r)
 	})
 }
