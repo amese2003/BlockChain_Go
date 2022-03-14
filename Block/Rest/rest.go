@@ -3,6 +3,7 @@ package rest
 import (
 	blockchain "blockchain/Blockchain"
 	utils "blockchain/Utils"
+	"blockchain/p2p"
 	"blockchain/wallet"
 	"encoding/json"
 	"fmt"
@@ -79,6 +80,11 @@ func documentation(rw http.ResponseWriter, r *http.Request) {
 			Method:      "GET",
 			Description: "Get TxOut for an Address",
 		},
+		{
+			URL:         url("/ws"),
+			Method:      "GET",
+			Description: "Upgrade to WebSockets",
+		},
 	}
 
 	utils.HandleError(json.NewEncoder(rw).Encode(data))
@@ -118,6 +124,13 @@ func jsonContentTypeMiddleware(next http.Handler) http.Handler {
 
 func status(rw http.ResponseWriter, r *http.Request) {
 	utils.HandleError(json.NewEncoder(rw).Encode(blockchain.BlockChain()))
+}
+
+func loggerMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		fmt.Println(r.URL)
+		next.ServeHTTP(rw, r)
+	})
 }
 
 func balance(rw http.ResponseWriter, r *http.Request) {
@@ -163,7 +176,7 @@ func myWallet(rw http.ResponseWriter, r *http.Request) {
 func Start(aPort int) {
 	router := mux.NewRouter()
 	port = fmt.Sprintf(":%d", aPort)
-	router.Use(jsonContentTypeMiddleware)
+	router.Use(jsonContentTypeMiddleware, loggerMiddleware)
 	router.HandleFunc("/", documentation).Methods("GET")
 	router.HandleFunc("/status", status)
 	router.HandleFunc("/blocks", BlockPage).Methods("GET", "POST")
@@ -173,6 +186,7 @@ func Start(aPort int) {
 	router.HandleFunc("/wallet", myWallet).Methods("GET")
 	router.HandleFunc("/mempool", mempool)
 	router.HandleFunc("/transactions", transactions).Methods("POST")
+	router.HandleFunc("/ws", p2p.Upgrade).Methods("GET")
 	fmt.Printf("Listening on http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, router))
 }
