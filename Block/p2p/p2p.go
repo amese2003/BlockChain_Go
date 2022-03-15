@@ -4,7 +4,6 @@ import (
 	utils "blockchain/Utils"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/gorilla/websocket"
 )
@@ -12,18 +11,20 @@ import (
 var upgrader = websocket.Upgrader{}
 
 func Upgrade(rw http.ResponseWriter, r *http.Request) {
+
+	openport := r.URL.Query().Get("openPort")
+	ip := utils.Splitter(r.RemoteAddr, ":", 0)
+
 	upgrader.CheckOrigin = func(r *http.Request) bool {
-		return true
+		return openport != "" && ip != ""
 	}
 	conn, err := upgrader.Upgrade(rw, r, nil)
 	utils.HandleError(err)
-	openport := r.URL.Query().Get("openPort")
-	result := strings.Split(r.RemoteAddr, ":")
-	initPeer(conn, result[0], openport)
+	initPeer(conn, ip, openport)
 }
 
 func AddPeer(address, port, openPort string) {
-	conn, _, err := websocket.DefaultDialer.Dial(fmt.Sprintf("ws://%s:%s/ws?openPort=%s", address, port, openPort), nil)
+	conn, _, err := websocket.DefaultDialer.Dial(fmt.Sprintf("ws://%s:%s/ws?openPort=%s", address, port[1:], openPort), nil)
 	utils.HandleError(err)
 	initPeer(conn, address, port)
 }
