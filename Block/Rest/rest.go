@@ -143,7 +143,7 @@ func peers(rw http.ResponseWriter, r *http.Request) {
 	case "POST":
 		var payload addPeerPayload
 		json.NewDecoder(r.Body).Decode(&payload)
-		p2p.AddPeer(payload.Address, payload.Port)
+		p2p.AddPeer(payload.Address, payload.Port, port)
 		rw.WriteHeader(http.StatusOK)
 		break
 	case "GET":
