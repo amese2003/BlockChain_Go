@@ -47,6 +47,10 @@ type balanceResponse struct {
 	Balance int    `json:"balance"`
 }
 
+type addPeerPayload struct {
+	address, port string
+}
+
 func documentation(rw http.ResponseWriter, r *http.Request) {
 	data := []urlDescription{
 		{
@@ -132,6 +136,17 @@ func loggerMiddleware(next http.Handler) http.Handler {
 		fmt.Println(r.RequestURI)
 		next.ServeHTTP(rw, r)
 	})
+}
+
+func peers(rw http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		var payload addPeerPayload
+		json.NewDecoder(r.Body).Decode(&payload)
+		p2p.AddPeer(payload.address, payload.port)
+		rw.WriteHeader(http.StatusOK)
+		break
+	}
 }
 
 func balance(rw http.ResponseWriter, r *http.Request) {
