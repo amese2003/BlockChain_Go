@@ -2,14 +2,13 @@ package p2p
 
 import (
 	utils "blockchain/Utils"
-	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{}
+var conns []*websocket.Conn
 
 func Upgrade(rw http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool {
@@ -17,6 +16,7 @@ func Upgrade(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	conn, err := upgrader.Upgrade(rw, r, nil)
+	conns = append(conns, conn)
 	utils.HandleError(err)
 
 	for {
@@ -24,9 +24,10 @@ func Upgrade(rw http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			break
 		}
-		fmt.Printf("Just got:%s\n\n", p)
-		time.Sleep(5 * time.Second)
-		message := fmt.Sprintf("New message: %s", p)
-		utils.HandleError(conn.WriteMessage(websocket.TextMessage, []byte(message)))
+		for _, aConn := range conns {
+			if aConn != conn {
+				utils.HandleError(aConn.WriteMessage(websocket.TextMessage, p))
+			}
+		}
 	}
 }
