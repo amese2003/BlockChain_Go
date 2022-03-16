@@ -4,6 +4,7 @@ import (
 	utils "blockchain/Utils"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -21,10 +22,15 @@ func Upgrade(rw http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(rw, r, nil)
 	utils.HandleError(err)
 	initPeer(conn, ip, openport)
+
+	time.Sleep(20 * time.Second)
+	conn.WriteMessage(websocket.TextMessage, []byte("3000번이다!"))
 }
 
 func AddPeer(address, port, openPort string) {
 	conn, _, err := websocket.DefaultDialer.Dial(fmt.Sprintf("ws://%s:%s/ws?openPort=%s", address, port[1:], openPort), nil)
 	utils.HandleError(err)
 	initPeer(conn, address, port)
+	time.Sleep(10 * time.Second)
+	conn.WriteMessage(websocket.TextMessage, []byte("4000번이다!"))
 }
