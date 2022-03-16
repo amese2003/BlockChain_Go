@@ -147,7 +147,7 @@ func peers(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusOK)
 		break
 	case "GET":
-		json.NewEncoder(rw).Encode(p2p.Peers)
+		json.NewEncoder(rw).Encode(p2p.Allpeer(&p2p.Peers))
 	}
 }
 
