@@ -4,6 +4,7 @@ import (
 	blockchain "blockchain/Blockchain"
 	utils "blockchain/Utils"
 	"encoding/json"
+	"fmt"
 )
 
 type MessageKind int
@@ -27,13 +28,11 @@ func (m *Message) addPayload(p interface{}) {
 
 func makeMessage(kind MessageKind, payload interface{}) []byte {
 	m := Message{
-		Kind: kind,
+		Kind:    kind,
+		Payload: utils.ToJson(payload),
 	}
 
-	m.addPayload(payload)
-	jsonData, err := json.Marshal(m)
-	utils.HandleError(err)
-	return jsonData
+	return utils.ToJson(m)
 }
 
 func sendNewestBlock(p *peer) {
@@ -41,4 +40,13 @@ func sendNewestBlock(p *peer) {
 	utils.HandleError(err)
 	m := makeMessage(MessageNewestBlock, b)
 	p.inbox <- m
+}
+
+func handleMsg(m *Message, p *peer) {
+	switch m.Kind {
+	case MessageNewestBlock:
+		var payload blockchain.Block
+		utils.HandleError(json.Unmarshal(m.Payload, &payload))
+		fmt.Println(payload)
+	}
 }
