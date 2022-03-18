@@ -3,12 +3,13 @@ package db
 import (
 	utils "blockchain/Utils"
 	"fmt"
+	"os"
 
 	bolt "go.etcd.io/bbolt"
 )
 
 const (
-	dbName       = "blockchain.db"
+	dbName       = "blockchain"
 	dataBucket   = "data"
 	blocksBucket = "blocks"
 
@@ -19,7 +20,7 @@ var db *bolt.DB
 
 func DB() *bolt.DB {
 	if db == nil {
-		dbPointer, err := bolt.Open(dbName, 0600, nil)
+		dbPointer, err := bolt.Open(getDBName(), 0600, nil)
 		db = dbPointer
 		utils.HandleError(err)
 		err = db.Update(func(t *bolt.Tx) error {
@@ -32,6 +33,11 @@ func DB() *bolt.DB {
 	}
 
 	return db
+}
+
+func getDBName() string {
+	port := os.Args[2][6:]
+	return fmt.Sprintf("%s_%s.db", dbName, port)
 }
 
 func SaveBlock(hash string, data []byte) {
