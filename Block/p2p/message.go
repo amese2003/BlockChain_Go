@@ -71,6 +71,7 @@ func handleMsg(m *Message, p *peer) {
 	case MessageAllBlocksResponse:
 		var payload []*blockchain.Block
 		utils.HandleError(json.Unmarshal(m.Payload, &payload))
+		blockchain.BlockChain().Replace(payload)
 	}
 
 }
