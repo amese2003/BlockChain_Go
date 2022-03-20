@@ -170,15 +170,24 @@ func (b *blockchain) Replace(newBlock []*Block) {
 
 }
 
-func (b *blockchain) AddPeerBlock(block *Block) {
+func (b *blockchain) AddPeerBlock(newBlock *Block) {
 	b.m.Lock()
+	m.m.Lock()
 	defer b.m.Unlock()
+	defer m.m.Unlock()
 
 	b.Height += 1
-	b.CurrentDifficulty = block.Difficulty
-	b.NewestHash = block.Hash
+	b.CurrentDifficulty = newBlock.Difficulty
+	b.NewestHash = newBlock.Hash
 
 	persistBlockchain(b)
-	persistBlock(block)
+	persistBlock(newBlock)
+
+	for _, tx := range newBlock.Transactions {
+		_, exist := m.Txs[tx.Id]
+		if exist == false {
+			delete(m.Txs, tx.Id)
+		}
+	}
 
 }
