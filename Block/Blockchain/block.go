@@ -3,7 +3,9 @@ package blockchain
 import (
 	utils "blockchain/Utils"
 	"blockchain/db"
+	"encoding/json"
 	"errors"
+	"net/http"
 	"strings"
 	"time"
 )
@@ -75,6 +77,9 @@ func createBlock(prevHash string, height int, difficulty int) *Block {
 }
 
 func Blocks(b *blockchain) []*Block {
+	b.m.Lock()
+	defer b.m.Unlock()
+
 	var blocks []*Block
 	currentHash := b.NewestHash
 
@@ -89,4 +94,10 @@ func Blocks(b *blockchain) []*Block {
 	}
 
 	return blocks
+}
+
+func Status(b *blockchain, rw http.ResponseWriter) {
+	b.m.Lock()
+	defer b.m.Unlock()
+	utils.HandleError(json.NewEncoder(rw).Encode(b))
 }

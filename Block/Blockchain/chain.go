@@ -18,6 +18,7 @@ type blockchain struct {
 	NewestHash        string `json:"newesthash"`
 	Height            int    `json:"height"`
 	CurrentDifficulty int    `json:"currentDifficulty"`
+	m                 sync.Mutex
 }
 
 var b *blockchain
@@ -31,12 +32,13 @@ func persistBlockchain(b *blockchain) {
 	db.SaveBlockchain(utils.ToBytes(b))
 }
 
-func (b *blockchain) AddBlock() {
+func (b *blockchain) AddBlock() *Block {
 	block := createBlock(b.NewestHash, b.Height+1, getDifficulty(b))
 	b.NewestHash = block.Hash
 	b.Height = block.Height
 	b.CurrentDifficulty = block.Difficulty
 	persistBlockchain(b)
+	return block
 }
 
 func Txs(b *blockchain) []*Tx {
@@ -154,6 +156,8 @@ func BalanceByAddress(address string, b *blockchain) int {
 }
 
 func (b *blockchain) Replace(newBlock []*Block) {
+	b.m.Lock()
+	defer b.m.Unlock()
 	b.CurrentDifficulty = newBlock[0].Difficulty
 	b.Height = len(newBlock)
 	b.NewestHash = newBlock[0].Hash

@@ -101,7 +101,8 @@ func BlockPage(rw http.ResponseWriter, r *http.Request) {
 		utils.HandleError(json.NewEncoder(rw).Encode(blockchain.Blocks(blockchain.BlockChain())))
 
 	case "POST":
-		blockchain.BlockChain().AddBlock()
+		newBlock := blockchain.BlockChain().AddBlock()
+		p2p.BroadcastNewBlock(newBlock)
 		rw.WriteHeader(http.StatusCreated)
 	}
 }
@@ -127,7 +128,7 @@ func jsonContentTypeMiddleware(next http.Handler) http.Handler {
 }
 
 func status(rw http.ResponseWriter, r *http.Request) {
-	utils.HandleError(json.NewEncoder(rw).Encode(blockchain.BlockChain()))
+	blockchain.Status(blockchain.BlockChain(), rw)
 }
 
 func loggerMiddleware(next http.Handler) http.Handler {
