@@ -4,6 +4,7 @@ import (
 	utils "blockchain/Utils"
 	"blockchain/wallet"
 	"errors"
+	"sync"
 	"time"
 )
 
@@ -13,6 +14,9 @@ const (
 
 var ErrNotEnough = errors.New("Not enough Coin")
 var ErrNotValid = errors.New("Tx Invalid")
+
+var m *mempool = &mempool{}
+var memOnce sync.Once
 
 type Tx struct {
 	Id        string   `json:"id"`
@@ -36,6 +40,19 @@ type UTxOut struct {
 	TxID   string `json:"txId"`
 	Index  int    `json:"index"`
 	Amount int    `json:"amount"`
+}
+
+type mempool struct {
+	Txs []*Tx
+	m   sync.Mutex
+}
+
+func Mempool() *mempool {
+	memOnce.Do(func() {
+		m = &mempool{}
+	})
+
+	return m
 }
 
 func (t *Tx) sign() {
@@ -69,7 +86,7 @@ func isOnMempool(UTxOut *UTxOut) bool {
 	exists := false
 
 Outloop:
-	for _, tx := range Mempool.Txs {
+	for _, tx := range Mempool().Txs {
 		for _, input := range tx.TxIns {
 			if input.TxID == UTxOut.TxID && input.Index == UTxOut.Index {
 				exists = true
@@ -80,12 +97,6 @@ Outloop:
 
 	return exists
 }
-
-type mempool struct {
-	Txs []*Tx
-}
-
-var Mempool *mempool = &mempool{}
 
 func (t *Tx) getId() {
 	t.Id = utils.Hash(t)
@@ -158,13 +169,13 @@ func makeTx(from, to string, amount int) (*Tx, error) {
 	return tx, nil
 }
 
-func (m *mempool) AddTx(to string, amount int) error {
+func (m *mempool) AddTx(to string, amount int) (*Tx, error) {
 	tx, err := makeTx(wallet.Wallet().Address, to, amount)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	m.Txs = append(m.Txs, tx)
-	return nil
+	return tx, nil
 }
 
 func (m *mempool) TxToConfirm() []*Tx {
@@ -173,4 +184,11 @@ func (m *mempool) TxToConfirm() []*Tx {
 	txs = append(txs, coinbase)
 	m.Txs = nil
 	return txs
+}
+
+func (m *mempool) AddPeerTx(tx *Tx) {
+	m.m.Lock()
+	defer m.m.Unlock()
+
+	m.Txs = append(m.Txs, tx)
 }

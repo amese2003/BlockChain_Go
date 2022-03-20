@@ -71,7 +71,7 @@ func createBlock(prevHash string, height int, difficulty int) *Block {
 	}
 
 	newBlock.Mine()
-	newBlock.Transactions = Mempool.TxToConfirm()
+	newBlock.Transactions = Mempool().TxToConfirm()
 	persistBlock(newBlock)
 	return newBlock
 }
