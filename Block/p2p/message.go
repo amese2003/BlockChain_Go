@@ -14,6 +14,7 @@ const (
 	MessageAllBlocksResponse
 	MessageNewBlockNotify
 	MessageNewTxNotify
+	MessageNewPeerNotify
 )
 
 type Message struct {
@@ -60,6 +61,11 @@ func notifyNewBlock(b *blockchain.Block, p *peer) {
 
 func notifyNewTx(tx *blockchain.Tx, p *peer) {
 	m := makeMessage(MessageNewTxNotify, tx)
+	p.inbox <- m
+}
+
+func notifyNewPeer(address string, p *peer) {
+	m := makeMessage(MessageNewPeerNotify, address)
 	p.inbox <- m
 }
 
