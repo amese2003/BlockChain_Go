@@ -4,6 +4,7 @@ import (
 	blockchain "blockchain/Blockchain"
 	utils "blockchain/Utils"
 	"encoding/json"
+	"strings"
 )
 
 type MessageKind int
@@ -100,6 +101,12 @@ func handleMsg(m *Message, p *peer) {
 		var payload *blockchain.Tx
 		utils.HandleError(json.Unmarshal(m.Payload, &payload))
 		blockchain.Mempool().AddPeerTx(payload)
+
+	case MessageNewPeerNotify:
+		var payload string
+		utils.HandleError(json.Unmarshal(m.Payload, &payload))
+		parts := strings.Split(payload, ":")
+		AddPeer(parts[0], parts[1], parts[2], false)
 	}
 
 }

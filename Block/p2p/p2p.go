@@ -28,11 +28,11 @@ func AddPeer(address, port, openPort string, broadcast bool) {
 
 	fmt.Printf("ws://%s:%s/ws?openPort=%s\n", address, port[1:], openPort)
 
-	conn, _, err := websocket.DefaultDialer.Dial(fmt.Sprintf("ws://%s:%s/ws?openPort=%s", address, port[1:], openPort), nil)
+	conn, _, err := websocket.DefaultDialer.Dial(fmt.Sprintf("ws://%s:%s/ws?openPort=%s", address, port, openPort), nil)
 	utils.HandleError(err)
 	p := initPeer(conn, address, port)
 
-	if broadcast == false {
+	if broadcast == true {
 		BroadcastNewPeer(p)
 		return
 	}
