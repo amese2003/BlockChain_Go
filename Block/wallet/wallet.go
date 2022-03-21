@@ -1,3 +1,5 @@
+// Users wallet
+
 package wallet
 
 import (

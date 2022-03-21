@@ -1,3 +1,4 @@
+// 커맨드 라인을 지정합니다.
 package cli
 
 import (

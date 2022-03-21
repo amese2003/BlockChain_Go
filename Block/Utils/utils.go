@@ -1,3 +1,5 @@
+// Package utils contains functions to be used across the application.
+
 package utils
 
 import (
@@ -28,6 +30,7 @@ func HandleError(err error) {
 	}
 }
 
+// Hash takes an interface, hashes it and returns the hex encoding of the hash.
 func Hash(i interface{}) string {
 	s := fmt.Sprintf("%v", i)
 	hash := sha256.Sum256([]byte(s))
