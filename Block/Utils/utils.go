@@ -12,6 +12,8 @@ import (
 	"strings"
 )
 
+var logfn = log.Panic
+
 func ToBytes(data interface{}) []byte {
 	var blockbuffer bytes.Buffer
 	encoder := gob.NewEncoder(&blockbuffer)
@@ -26,7 +28,7 @@ func FromBytes(out interface{}, data []byte) {
 
 func HandleError(err error) {
 	if err != nil {
-		log.Panic(err)
+		logfn(err)
 	}
 }
 
