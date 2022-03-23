@@ -24,16 +24,38 @@ func makeTestWallet() *wallet {
 	return w
 }
 
-// func TestVerify(t *testing.T) {
-// 	privKey, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-// 	b, _ := x509.MarshalECPrivateKey(privKey)
-// 	t.Logf("%x", b)
-// }
+func TestVerify(t *testing.T) {
+	type test struct {
+		input string
+		ok    bool
+	}
+
+	tests := []test{
+		{testPayload, true},
+		//{"0035e1f04b7e6b41d24873d3df88e90a9258cd9e1bbdd8f769e23be22e2", false},
+	}
+
+	for _, tc := range tests {
+		w := makeTestWallet()
+		ok := Verify(testSign, tc.input, w.Address)
+
+		if ok != tc.ok {
+			t.Error("Verify() could not verify testSignature and testPayload")
+		}
+	}
+}
 
 func TestSign(t *testing.T) {
 	s := Sign(testPayload, makeTestWallet())
 	_, err := hex.DecodeString(s)
 	if err != nil {
 		t.Errorf("Sign() should return a hex encoded string, got %s", s)
+	}
+}
+
+func TestRestoreBigInts(t *testing.T) {
+	_, _, err := restoreBigInts("가나다라")
+	if err == nil {
+		t.Error("restoreBigInts는 값이 hex가 아니라면 에러를 반환해야합니다.")
 	}
 }
