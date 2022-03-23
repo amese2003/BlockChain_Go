@@ -10,6 +10,7 @@ import (
 	"crypto/x509"
 	"encoding/hex"
 	"fmt"
+	"io/fs"
 	"math/big"
 	"os"
 )
@@ -19,13 +20,30 @@ type wallet struct {
 	Address    string
 }
 
+type fileLayer interface {
+	hasWalletFile() bool
+	writeFile(name string, data []byte, perm fs.FileMode) error
+	readFile(name string) ([]byte, error)
+}
+
+type layer struct{}
+
+func (layer) writeFile(name string, data []byte, perm fs.FileMode) error {
+	return os.WriteFile(name, data, perm)
+}
+
+func (layer) readFile(name string) ([]byte, error) {
+	return os.ReadFile(name)
+}
+
 var w *wallet
+var files fileLayer = layer{}
 
 const (
 	fileName string = "nerocoin.wallet"
 )
 
-func hasWalletFile() bool {
+func (layer) hasWalletFile() bool {
 	_, err := os.Stat(fileName)
 	return !os.IsNotExist(err)
 }
@@ -37,7 +55,7 @@ func createPrivateKey() *ecdsa.PrivateKey {
 }
 
 func restoreKey() *ecdsa.PrivateKey {
-	keyAsBytes, err := os.ReadFile(fileName)
+	keyAsBytes, err := files.readFile(fileName)
 	utils.HandleError(err)
 	key, err := x509.ParseECPrivateKey(keyAsBytes)
 	utils.HandleError(err)
@@ -56,7 +74,7 @@ func restoreKey() *ecdsa.PrivateKey {
 func saveKey(key *ecdsa.PrivateKey) {
 	bytes, err := x509.MarshalECPrivateKey(key)
 	utils.HandleError(err)
-	err = os.WriteFile(fileName, bytes, 0644)
+	err = files.writeFile(fileName, bytes, 0644)
 	utils.HandleError(err)
 }
 
@@ -117,7 +135,7 @@ func Verify(signature, payload, address string) bool {
 func Wallet() *wallet {
 	if w == nil {
 		w = &wallet{}
-		if hasWalletFile() {
+		if files.hasWalletFile() {
 			w.privateKey = restoreKey()
 		} else {
 			key := createPrivateKey()
