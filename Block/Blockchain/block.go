@@ -22,7 +22,7 @@ type Block struct {
 }
 
 func persistBlock(b *Block) {
-	dbStorage.saveBlock(b.Hash, utils.ToBytes(b))
+	dbStorage.SaveBlock(b.Hash, utils.ToBytes(b))
 }
 
 var ErrNotFound = errors.New("블록이.. 없어요!")
@@ -49,7 +49,7 @@ func (b *Block) Mine() {
 }
 
 func FindBlock(hash string) (*Block, error) {
-	blockbyte := dbStorage.findBlock(hash)
+	blockbyte := dbStorage.FindBlock(hash)
 
 	if blockbyte == nil {
 		return nil, ErrNotFound

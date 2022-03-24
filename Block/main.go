@@ -11,5 +11,6 @@ import (
 // godoc -http:6060
 func main() {
 	defer db.Close()
+	db.InitDB()
 	cli.Start()
 }
