@@ -2,7 +2,6 @@ package blockchain
 
 import (
 	utils "blockchain/Utils"
-	"blockchain/db"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -23,7 +22,7 @@ type Block struct {
 }
 
 func persistBlock(b *Block) {
-	db.SaveBlock(b.Hash, utils.ToBytes(b))
+	dbStorage.saveBlock(b.Hash, utils.ToBytes(b))
 }
 
 var ErrNotFound = errors.New("블록이.. 없어요!")
@@ -50,7 +49,7 @@ func (b *Block) Mine() {
 }
 
 func FindBlock(hash string) (*Block, error) {
-	blockbyte := db.Block(hash)
+	blockbyte := dbStorage.findBlock(hash)
 
 	if blockbyte == nil {
 		return nil, ErrNotFound
@@ -70,8 +69,8 @@ func createBlock(prevHash string, height int, difficulty int) *Block {
 		Nonce:      0,
 	}
 
-	newBlock.Mine()
 	newBlock.Transactions = Mempool().TxToConfirm()
+	newBlock.Mine()
 	persistBlock(newBlock)
 	return newBlock
 }

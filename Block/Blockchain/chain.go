@@ -14,6 +14,13 @@ const (
 	allowedRange       int = 2
 )
 
+type storage interface {
+	findBlock(hash string) []byte
+	loadChain() []byte
+	saveBlock(hash string, data []byte)
+	saveChain(data []byte)
+}
+
 type blockchain struct {
 	NewestHash        string `json:"newesthash"`
 	Height            int    `json:"height"`
@@ -23,13 +30,14 @@ type blockchain struct {
 
 var b *blockchain
 var once sync.Once
+var dbStorage storage
 
 func (b *blockchain) restore(data []byte) {
 	utils.FromBytes(b, data)
 }
 
 func persistBlockchain(b *blockchain) {
-	db.SaveBlockchain(utils.ToBytes(b))
+	dbStorage.saveChain(utils.ToBytes(b))
 }
 
 func (b *blockchain) AddBlock() *Block {
@@ -93,7 +101,7 @@ func BlockChain() *blockchain {
 				Height: 0,
 			}
 			fmt.Printf("NewestHash: %s\nHeight:%d\n", b.NewestHash, b.Height)
-			checkpoint := db.Checkpoint()
+			checkpoint := dbStorage.loadChain()
 			if checkpoint == nil {
 				b.AddBlock()
 			} else {
