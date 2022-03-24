@@ -4,6 +4,8 @@ import (
 	utils "blockchain/Utils"
 	"crypto/x509"
 	"encoding/hex"
+	"io/fs"
+	"reflect"
 	"testing"
 )
 
@@ -12,6 +14,54 @@ const (
 	testPayload = "0035e1f04b7e6b41d24873d3df88e90a9258cd9e1bbdd8f769e23be22e2edda1"
 	testSign    = "41df91a4c59144ccc0d7ad8bf7f013197d8fa87dea1cba9ea018a9df19f2aa10344277bf0e25323c9bf96c7856ef616131b11872c45c7e0911966ca14a4d77d9"
 )
+
+type fakeLayer struct {
+	fakeHasWalletFile func() bool
+}
+
+func (fakeLayer) writeFile(name string, data []byte, perm fs.FileMode) error {
+	return nil
+}
+
+func (fakeLayer) readFile(name string) ([]byte, error) {
+	return x509.MarshalECPrivateKey(makeTestWallet().privateKey)
+}
+
+func (f fakeLayer) hasWalletFile() bool {
+	return f.fakeHasWalletFile()
+}
+
+func TestWallet(t *testing.T) {
+	t.Run("새로운 월렛 생성", func(t *testing.T) {
+		files = fakeLayer{
+			fakeHasWalletFile: func() bool {
+				t.Log("월렛 소유 체크를 false로 설정합니다.")
+				return false
+			},
+		}
+
+		tw := Wallet()
+
+		if reflect.TypeOf(tw) != reflect.TypeOf(&wallet{}) {
+			t.Error("월렛 인스턴스 생성 실패")
+		}
+	})
+
+	t.Run("월렛 복구", func(t *testing.T) {
+		files = fakeLayer{
+			fakeHasWalletFile: func() bool {
+				t.Log("월렛 소유 체크를 true로 설정합니다.")
+				return false
+			},
+		}
+
+		w = nil
+		tw := Wallet()
+		if reflect.TypeOf(tw) != reflect.TypeOf(&wallet{}) {
+			t.Error("월렛 인스턴스 생성 실패")
+		}
+	})
+}
 
 func makeTestWallet() *wallet {
 	w := &wallet{}
